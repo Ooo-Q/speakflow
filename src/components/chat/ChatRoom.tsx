@@ -113,12 +113,12 @@ export function ChatRoom() {
   };
 
   return (
-    <div className="flex h-dvh flex-col bg-gradient-to-b from-slate-950 to-slate-900 text-white">
-      <header className="border-b border-slate-700/80">
+    <div className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-gradient-to-b from-slate-950 to-slate-900 text-white">
+      <header className="z-10 shrink-0 border-b border-slate-700/80 bg-slate-950/90">
         <div className="flex items-center gap-3 px-4 py-3">
           <Link
             href="/"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-600 text-slate-300 transition hover:border-slate-500 hover:text-white"
+            className="flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-slate-600 text-slate-300 transition active:scale-95 hover:border-slate-500 hover:text-white"
             aria-label="返回首页"
           >
             <BackIcon />
@@ -138,7 +138,7 @@ export function ChatRoom() {
         />
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
         <div className="mx-auto flex max-w-2xl flex-col gap-4">
           {messages.map((message) => (
             <MessageBubble key={message.id} message={message} />
