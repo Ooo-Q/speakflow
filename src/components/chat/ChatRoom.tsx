@@ -181,8 +181,8 @@ export function ChatRoom() {
 
   return (
     <div className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-[var(--sf-bg)] text-[var(--sf-text)]">
-      <header className="z-10 shrink-0 space-y-3 border-b border-[var(--sf-border)] px-4 py-3">
-        <div className="flex items-center gap-2">
+      <header className="z-10 shrink-0 border-b border-[var(--sf-border)]">
+        <div className="flex items-center gap-2 px-4 py-2.5">
           <Link
             href="/"
             className="flex h-9 w-9 shrink-0 touch-manipulation items-center justify-center rounded-lg border border-[var(--sf-border)] bg-[var(--sf-surface)] text-[var(--sf-muted)] transition active:scale-[0.98] hover:text-[var(--sf-text)]"

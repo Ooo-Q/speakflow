@@ -15,7 +15,7 @@ export function ScenarioPicker({
 }: ScenarioPickerProps) {
   return (
     <div
-      className="flex rounded-lg border border-[var(--sf-border)] bg-[var(--sf-surface-2)] p-1"
+      className="flex border-t border-[var(--sf-border)]"
       role="tablist"
       aria-label="练习场景"
     >
@@ -29,13 +29,21 @@ export function ScenarioPicker({
             aria-selected={active}
             disabled={disabled}
             onClick={() => onChange(scenario.id)}
-            className={`min-h-9 flex-1 touch-manipulation rounded-md px-2 py-1.5 text-center text-sm transition active:scale-[0.98] disabled:opacity-50 ${
+            className={`relative flex-1 touch-manipulation py-2.5 text-center text-[13px] font-medium transition active:opacity-70 disabled:opacity-40 ${
               active
-                ? "bg-[var(--sf-surface)] text-[var(--sf-text)] shadow-sm"
+                ? "text-[var(--sf-accent)]"
                 : "text-[var(--sf-muted)] hover:text-[var(--sf-text)]"
             }`}
           >
             {scenario.label}
+            <span
+              className={`absolute inset-x-4 bottom-0 h-0.5 rounded-full transition-all duration-200 ${
+                active
+                  ? "bg-[var(--sf-accent)] opacity-100"
+                  : "bg-transparent opacity-0"
+              }`}
+              aria-hidden
+            />
           </button>
         );
       })}
