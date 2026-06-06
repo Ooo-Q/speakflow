@@ -35,12 +35,18 @@ export async function POST(request: NextRequest) {
       error instanceof Error ? error.message : "Chat request failed";
     console.error("[api/chat]", message);
 
-    const hint =
+    let hint = "Unable to get a reply. Please try again.";
+
+    if (
       message.includes("MODELSCOPE_API_TOKEN") ||
       message.toLowerCase().includes("unauthorized") ||
       message.toLowerCase().includes("authentication")
-        ? "Please check MODELSCOPE_API_TOKEN in .env.local"
-        : "Unable to get a reply. Please try again.";
+    ) {
+      hint = "Please check MODELSCOPE_API_TOKEN in .env.local";
+    } else if (message.toLowerCase().includes("bind your alibaba cloud account")) {
+      hint =
+        "请先在魔搭社区绑定阿里云账号后再使用推理 API（免费，无需充值）。打开 modelscope.cn → 头像 → 账号设置 → 绑定阿里云。";
+    }
 
     return NextResponse.json({ error: hint }, { status: 502 });
   }

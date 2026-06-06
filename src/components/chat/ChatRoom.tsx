@@ -71,8 +71,14 @@ export function ChatRoom() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch {
-      setError("Unable to get a reply. Please check your connection and try again.");
+    } catch (requestError) {
+      const fallback =
+        "Unable to get a reply. Please check your connection and try again.";
+      if (requestError instanceof Error && requestError.message) {
+        setError(requestError.message);
+      } else {
+        setError(fallback);
+      }
     } finally {
       setIsLoading(false);
     }
