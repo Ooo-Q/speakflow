@@ -37,8 +37,8 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
       <button
         type="button"
         disabled
-        title="Voice input"
-        aria-label="Voice input"
+        title="语音输入"
+        aria-label="语音输入"
         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-600 text-slate-500"
       >
         <MicIcon />
@@ -50,7 +50,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
         onKeyDown={handleKeyDown}
         disabled={disabled}
         rows={1}
-        placeholder="Type in English..."
+        placeholder="用英语输入..."
         className="max-h-32 min-h-[44px] flex-1 resize-none rounded-2xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-[15px] text-slate-100 placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
       />
 
@@ -59,7 +59,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
         disabled={disabled || !text.trim()}
         className="flex h-11 shrink-0 items-center justify-center rounded-full bg-emerald-600 px-5 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40"
       >
-        Send
+        发送
       </button>
     </form>
   );

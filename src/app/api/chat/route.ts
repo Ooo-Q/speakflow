@@ -3,6 +3,7 @@ import {
   createChatCompletion,
   type ChatCompletionMessage,
 } from "@/lib/modelscope";
+import { isScenarioId } from "@/types/scenario";
 
 function isValidMessages(value: unknown): value is ChatCompletionMessage[] {
   if (!Array.isArray(value) || value.length === 0) return false;
@@ -19,7 +20,7 @@ function isValidMessages(value: unknown): value is ChatCompletionMessage[] {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { messages } = body;
+    const { messages, scenario } = body;
 
     if (!isValidMessages(messages)) {
       return NextResponse.json(
@@ -28,7 +29,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const content = await createChatCompletion(messages);
+    const scenarioId = isScenarioId(scenario) ? scenario : "daily";
+    const content = await createChatCompletion(messages, scenarioId);
     return NextResponse.json({ content });
   } catch (error) {
     const message =
