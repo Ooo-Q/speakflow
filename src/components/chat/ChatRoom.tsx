@@ -148,19 +148,19 @@ export function ChatRoom() {
   };
 
   return (
-    <div className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-gradient-to-b from-slate-950 to-slate-900 text-white">
-      <header className="z-10 shrink-0 border-b border-slate-700/80 bg-slate-950/90">
+    <div className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-[#0b0f14] text-[#e8edf2]">
+      <header className="z-10 shrink-0 border-b border-[#2a3441] bg-[#0b0f14]">
         <div className="flex items-center gap-3 px-4 py-3">
           <Link
             href="/"
-            className="flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-slate-600 text-slate-300 transition active:scale-95 hover:border-slate-500 hover:text-white"
+            className="flex h-10 w-10 touch-manipulation items-center justify-center rounded-lg border border-[#2a3441] bg-[#141a22] text-[#8b98a8] transition active:scale-[0.98] hover:border-[#3a4654] hover:text-[#e8edf2]"
             aria-label="返回首页"
           >
             <BackIcon />
           </Link>
           <div className="min-w-0 flex-1">
-            <h1 className="text-base font-semibold">SpeakFlow</h1>
-            <p className="text-xs text-slate-400">
+            <h1 className="text-base font-semibold tracking-tight">SpeakFlow</h1>
+            <p className="text-xs text-[#8b98a8]">
               {getScenario(scenario).label}
             </p>
           </div>
@@ -168,10 +168,10 @@ export function ChatRoom() {
             <button
               type="button"
               onClick={toggleAutoSpeak}
-              className={`touch-manipulation shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition active:scale-95 ${
+              className={`touch-manipulation shrink-0 rounded-lg border px-3 py-1.5 text-xs font-medium transition active:scale-[0.98] ${
                 autoSpeak
-                  ? "border-emerald-500 bg-emerald-500/20 text-emerald-300"
-                  : "border-slate-600 text-slate-400"
+                  ? "border-[#5b9fd4] bg-[rgba(91,159,212,0.14)] text-[#8ec5ef]"
+                  : "border-[#2a3441] bg-[#141a22] text-[#8b98a8]"
               }`}
             >
               {autoSpeak ? "朗读开" : "朗读关"}
@@ -186,7 +186,7 @@ export function ChatRoom() {
         />
       </header>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
+      <div className="sf-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
         <div className="mx-auto flex max-w-2xl flex-col gap-4">
           {messages.map((message) => (
             <MessageBubble
@@ -201,7 +201,7 @@ export function ChatRoom() {
           ))}
           {isLoading && <TypingIndicator />}
           {error && (
-            <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-center text-sm text-red-300">
+            <p className="rounded-xl border border-[rgba(212,132,132,0.35)] bg-[rgba(212,132,132,0.08)] px-4 py-2 text-center text-sm text-[#f0a8a8]">
               {error}
             </p>
           )}
