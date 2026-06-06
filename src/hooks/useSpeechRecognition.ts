@@ -6,8 +6,10 @@ type SpeechRecognitionInstance = {
   lang: string;
   continuous: boolean;
   interimResults: boolean;
+  maxAlternatives: number;
   start: () => void;
   stop: () => void;
+  abort: () => void;
   onstart: (() => void) | null;
   onend: (() => void) | null;
   onerror: ((event: { error: string }) => void) | null;
@@ -38,77 +40,134 @@ function getSpeechRecognitionCtor():
   return win.SpeechRecognition ?? win.webkitSpeechRecognition;
 }
 
+function isIosDevice(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent);
+}
+
 export function useSpeechRecognition() {
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const listeningRef = useRef(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isSupported, setIsSupported] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [unsupportedReason, setUnsupportedReason] = useState<string | null>(
+    null,
+  );
 
   const setListening = useCallback((value: boolean) => {
     listeningRef.current = value;
     setIsListening(value);
   }, []);
 
-  useEffect(() => {
-    const Ctor = getSpeechRecognitionCtor();
-    if (!Ctor) return;
+  const clearListenTimeout = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
 
-    const recognition = new Ctor();
-    recognition.lang = "en-US";
-    recognition.continuous = false;
-    recognition.interimResults = true;
+  const cleanupRecognition = useCallback(() => {
+    const recognition = recognitionRef.current;
+    if (!recognition) return;
 
-    recognition.onstart = () => {
-      setListening(true);
-      setError(null);
-    };
+    recognition.onstart = null;
+    recognition.onend = null;
+    recognition.onerror = null;
+    recognition.onresult = null;
 
-    recognition.onend = () => {
-      setListening(false);
-    };
-
-    recognition.onerror = (event) => {
-      setListening(false);
-      if (event.error === "not-allowed") {
-        setError("请允许浏览器使用麦克风");
-      } else if (event.error !== "aborted") {
-        setError("语音识别失败，请重试");
-      }
-    };
-
-    recognitionRef.current = recognition;
-    setIsSupported(true);
-
-    return () => {
+    try {
+      recognition.abort();
+    } catch {
       try {
         recognition.stop();
       } catch {
-        // ignore cleanup errors
+        // ignore
       }
-      recognitionRef.current = null;
-      listeningRef.current = false;
+    }
+
+    recognitionRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    const Ctor = getSpeechRecognitionCtor();
+
+    if (!Ctor) {
+      setUnsupportedReason(
+        isIosDevice()
+          ? "iPhone/iPad 浏览器暂不支持网页语音识别，请用电脑 Chrome 访问"
+          : "当前浏览器不支持语音识别，请使用 Chrome 或 Edge",
+      );
+      return;
+    }
+
+    if (typeof window !== "undefined" && !window.isSecureContext) {
+      setUnsupportedReason(
+        "语音功能需要 HTTPS 或 localhost，手机请等部署后再试",
+      );
+      return;
+    }
+
+    setIsSupported(true);
+
+    return () => {
+      clearListenTimeout();
+      cleanupRecognition();
+      setListening(false);
     };
-  }, [setListening]);
+  }, [cleanupRecognition, clearListenTimeout, setListening]);
 
   const stop = useCallback(() => {
-    const recognition = recognitionRef.current;
-    if (!recognition || !listeningRef.current) return;
-
-    try {
-      recognition.stop();
-    } catch {
-      setListening(false);
-    }
-  }, [setListening]);
+    clearListenTimeout();
+    cleanupRecognition();
+    setListening(false);
+  }, [cleanupRecognition, clearListenTimeout, setListening]);
 
   const start = useCallback(
     (
       onResult: (transcript: string, isFinal: boolean) => void,
       onFinal?: (transcript: string) => void,
     ) => {
-      const recognition = recognitionRef.current;
-      if (!recognition || listeningRef.current) return;
+      if (!isSupported || listeningRef.current) return;
+
+      const Ctor = getSpeechRecognitionCtor();
+      if (!Ctor) return;
+
+      cleanupRecognition();
+
+      const recognition = new Ctor();
+      recognition.lang = "en-US";
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        setListening(true);
+        setError(null);
+      };
+
+      recognition.onend = () => {
+        clearListenTimeout();
+        setListening(false);
+        recognitionRef.current = null;
+      };
+
+      recognition.onerror = (event) => {
+        clearListenTimeout();
+        setListening(false);
+        recognitionRef.current = null;
+
+        if (event.error === "not-allowed") {
+          setError("请允许浏览器使用麦克风");
+        } else if (event.error === "no-speech") {
+          setError("没有检测到语音，请靠近麦克风再试");
+        } else if (event.error === "network") {
+          setError("语音识别需要网络，请检查连接");
+        } else if (event.error !== "aborted") {
+          setError("语音识别失败，请重试");
+        }
+      };
 
       recognition.onresult = (event) => {
         let interim = "";
@@ -135,23 +194,37 @@ export function useSpeechRecognition() {
         }
       };
 
+      recognitionRef.current = recognition;
       setError(null);
 
       try {
         recognition.start();
+        timeoutRef.current = setTimeout(() => {
+          if (listeningRef.current) {
+            stop();
+            setError("录音超时，请再试一次");
+          }
+        }, 15000);
       } catch (startError) {
+        cleanupRecognition();
         setListening(false);
         if (
           startError instanceof DOMException &&
           startError.name === "InvalidStateError"
         ) {
-          setError("语音识别正在启动，请稍候再试");
+          setError("请稍候再点击语音按钮");
           return;
         }
         setError("语音识别启动失败，请重试");
       }
     },
-    [setListening],
+    [
+      cleanupRecognition,
+      clearListenTimeout,
+      isSupported,
+      setListening,
+      stop,
+    ],
   );
 
   const toggle = useCallback(
@@ -172,6 +245,7 @@ export function useSpeechRecognition() {
     isSupported,
     isListening,
     error,
+    unsupportedReason,
     toggle,
     stop,
     clearError: () => setError(null),

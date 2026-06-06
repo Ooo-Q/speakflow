@@ -23,7 +23,7 @@ export function ScenarioPicker({
             type="button"
             disabled={disabled}
             onClick={() => onChange(scenario.id)}
-            className={`shrink-0 rounded-full border px-4 py-2 text-left transition disabled:opacity-50 ${
+            className={`min-h-11 shrink-0 touch-manipulation rounded-full border px-4 py-2 text-left transition active:scale-95 disabled:opacity-50 ${
               active
                 ? "border-emerald-500 bg-emerald-500/20 text-emerald-200"
                 : "border-slate-600 bg-slate-800/60 text-slate-300 hover:border-slate-500"

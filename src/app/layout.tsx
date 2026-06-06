@@ -17,6 +17,12 @@ export const metadata: Metadata = {
   description: "与 AI 一起练习英语口语，支持文字与语音对话",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
