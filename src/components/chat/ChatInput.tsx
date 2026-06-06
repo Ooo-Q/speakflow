@@ -55,11 +55,11 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     (isListening ? "正在聆听，请说英语…" : unsupportedReason);
 
   return (
-    <div className="relative z-20 shrink-0 border-t border-slate-700/80 bg-slate-900/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+    <div className="relative z-20 shrink-0 border-t border-[var(--sf-border)] bg-[var(--sf-bg)]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
       {statusMessage && (
         <p
           className={`px-4 pt-2 text-center text-xs ${
-            speechError ? "text-red-300" : "text-slate-400"
+            speechError ? "text-[var(--sf-error)]" : "text-[var(--sf-muted)]"
           }`}
         >
           {statusMessage}
@@ -77,10 +77,10 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           title={isSupported ? "语音输入" : (unsupportedReason ?? "不支持语音")}
           aria-label={isListening ? "停止录音" : "语音输入"}
           aria-pressed={isListening}
-          className={`flex min-h-12 shrink-0 touch-manipulation items-center justify-center gap-1 rounded-full border px-3 transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`flex min-h-12 shrink-0 touch-manipulation items-center justify-center gap-1 rounded-xl border px-3 transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${
             isListening
-              ? "border-red-500 bg-red-500/20 text-red-400 animate-pulse"
-              : "border-emerald-600/60 bg-emerald-500/10 text-emerald-300"
+              ? "border-[var(--sf-listening-border)] bg-[var(--sf-listening-bg)] text-[var(--sf-listening-text)]"
+              : "border-[var(--sf-border)] bg-[var(--sf-surface)] text-[var(--sf-muted)] hover:border-[var(--sf-scroll-hover)] hover:text-[var(--sf-text)]"
           }`}
         >
           <MicIcon />
@@ -95,13 +95,13 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           rows={1}
           enterKeyHint="send"
           placeholder={isListening ? "正在识别…" : "用英语输入..."}
-          className="max-h-32 min-h-12 flex-1 resize-none rounded-2xl border border-slate-600 bg-slate-800 px-4 py-3 text-base text-slate-100 placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+          className="max-h-32 min-h-12 flex-1 resize-none rounded-xl border border-[var(--sf-border)] bg-[var(--sf-surface)] px-4 py-3 text-base text-[var(--sf-text)] placeholder:text-[var(--sf-muted-2)] focus:border-[var(--sf-accent)] focus:outline-none disabled:opacity-50"
         />
 
         <button
           type="submit"
           disabled={disabled || !text.trim()}
-          className="flex min-h-12 min-w-16 shrink-0 touch-manipulation items-center justify-center rounded-full bg-emerald-600 px-5 text-sm font-medium text-white transition hover:bg-emerald-500 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex min-h-12 min-w-16 shrink-0 touch-manipulation items-center justify-center rounded-xl bg-[var(--sf-accent)] px-5 text-sm font-medium text-[var(--sf-accent-foreground)] transition hover:bg-[var(--sf-accent-hover)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
         >
           发送
         </button>

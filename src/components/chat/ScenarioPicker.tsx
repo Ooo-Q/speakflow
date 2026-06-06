@@ -14,23 +14,36 @@ export function ScenarioPicker({
   disabled,
 }: ScenarioPickerProps) {
   return (
-    <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-none">
+    <div
+      className="flex border-t border-[var(--sf-border)]"
+      role="tablist"
+      aria-label="练习场景"
+    >
       {scenarios.map((scenario) => {
         const active = scenario.id === value;
         return (
           <button
             key={scenario.id}
             type="button"
+            role="tab"
+            aria-selected={active}
             disabled={disabled}
             onClick={() => onChange(scenario.id)}
-            className={`min-h-11 shrink-0 touch-manipulation rounded-full border px-4 py-2 text-left transition active:scale-95 disabled:opacity-50 ${
+            className={`relative flex-1 touch-manipulation py-2.5 text-center text-[13px] font-medium transition active:opacity-70 disabled:opacity-40 ${
               active
-                ? "border-emerald-500 bg-emerald-500/20 text-emerald-200"
-                : "border-slate-600 bg-slate-800/60 text-slate-300 hover:border-slate-500"
+                ? "text-[var(--sf-accent)]"
+                : "text-[var(--sf-muted)] hover:text-[var(--sf-text)]"
             }`}
           >
-            <span className="block text-sm font-medium">{scenario.label}</span>
-            <span className="block text-xs opacity-80">{scenario.description}</span>
+            {scenario.label}
+            <span
+              className={`absolute inset-x-4 bottom-0 h-0.5 rounded-full transition-all duration-200 ${
+                active
+                  ? "bg-[var(--sf-accent)] opacity-100"
+                  : "bg-transparent opacity-0"
+              }`}
+              aria-hidden
+            />
           </button>
         );
       })}

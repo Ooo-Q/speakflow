@@ -1,46 +1,67 @@
 import Link from "next/link";
-import { SCENARIOS } from "@/types/scenario";
+import { ThemeToggle } from "@/components/ThemeToggle";
+
+const FEATURES = [
+  { title: "文字对话", desc: "随时输入，即时回复" },
+  { title: "语音练习", desc: "开口说，听 AI 朗读" },
+  { title: "场景切换", desc: "聊天页内一键切换" },
+];
 
 export default function Home() {
   return (
-    <div className="flex min-h-full flex-col items-center justify-center bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 px-6 py-16 text-white">
-      <main className="flex max-w-lg flex-col items-center gap-8 text-center">
-        <div className="flex flex-col items-center gap-4">
-          <p className="rounded-full bg-emerald-500/20 px-4 py-1 text-sm text-emerald-300">
-            AI 英语口语陪练
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            SpeakFlow
-          </h1>
-          <p className="text-lg leading-relaxed text-slate-300">
-            与 AI 一起练习英语口语。打字或说话，获得自然回复与表达建议。
-          </p>
-        </div>
+    <div className="relative flex min-h-dvh flex-col bg-[var(--sf-bg)] text-[var(--sf-text)]">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-40"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 50% at 50% -10%, var(--sf-glow), transparent)",
+        }}
+      />
 
-        <div className="flex w-full max-w-sm flex-col gap-3">
-          <Link
-            href="/chat"
-            className="rounded-full bg-emerald-600 px-8 py-3.5 text-center text-base font-medium text-white shadow-lg shadow-emerald-900/30 transition hover:bg-emerald-500"
-          >
-            开始练习
-          </Link>
+      <header className="relative z-10 flex justify-end px-6 pt-6 sm:px-8">
+        <ThemeToggle />
+      </header>
 
-          <div className="grid gap-2 pt-2">
-            {SCENARIOS.map((scenario) => (
-              <Link
-                key={scenario.id}
-                href={`/chat?scenario=${scenario.id}`}
-                className="rounded-2xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-left transition hover:border-emerald-500/50 hover:bg-slate-800"
-              >
-                <p className="text-sm font-medium text-slate-100">
-                  {scenario.label}
-                </p>
-                <p className="text-xs text-slate-400">{scenario.description}</p>
-              </Link>
-            ))}
+      <main className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-8 sm:max-w-lg sm:px-8">
+        <div className="mb-10 space-y-4">
+          <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--sf-border)] bg-[var(--sf-surface)] text-lg font-semibold tracking-tight text-[var(--sf-accent)]">
+            S
+          </div>
+          <div className="space-y-3">
+            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+              SpeakFlow
+            </h1>
+            <p className="max-w-sm text-base leading-relaxed text-[var(--sf-muted)]">
+              专注英语口语练习。说、听、改，在一个页面里完成。
+            </p>
           </div>
         </div>
+
+        <Link
+          href="/chat"
+          className="mb-10 flex min-h-12 touch-manipulation items-center justify-center rounded-xl bg-[var(--sf-accent)] text-base font-medium text-[var(--sf-accent-foreground)] transition hover:bg-[var(--sf-accent-hover)] active:scale-[0.99]"
+        >
+          开始练习
+        </Link>
+
+        <ul className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+          {FEATURES.map((item) => (
+            <li
+              key={item.title}
+              className="rounded-xl border border-[var(--sf-border)] bg-[var(--sf-surface)]/80 px-4 py-3"
+            >
+              <p className="text-sm font-medium">{item.title}</p>
+              <p className="mt-1 text-xs leading-relaxed text-[var(--sf-muted)]">
+                {item.desc}
+              </p>
+            </li>
+          ))}
+        </ul>
       </main>
+
+      <footer className="relative z-10 px-6 pb-8 text-center text-xs text-[var(--sf-footer)]">
+        进入对话后可在顶部切换练习场景
+      </footer>
     </div>
   );
 }
