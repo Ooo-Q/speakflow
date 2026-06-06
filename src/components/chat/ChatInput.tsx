@@ -80,17 +80,18 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
               ? isListening
                 ? "点击停止录音"
                 : "语音输入"
-              : "当前浏览器不支持语音输入"
+              : "请使用 Chrome 或 Edge 浏览器"
           }
           aria-label={isListening ? "停止录音" : "语音输入"}
           aria-pressed={isListening}
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition disabled:cursor-not-allowed disabled:opacity-40 ${
+          className={`flex h-11 shrink-0 items-center justify-center gap-1 rounded-full border px-3 transition disabled:cursor-not-allowed disabled:opacity-50 ${
             isListening
               ? "border-red-500 bg-red-500/20 text-red-400 animate-pulse"
-              : "border-slate-600 text-slate-300 hover:border-emerald-500 hover:text-emerald-300"
+              : "border-emerald-600/60 bg-emerald-500/10 text-emerald-300 hover:border-emerald-500 hover:bg-emerald-500/20"
           }`}
         >
           <MicIcon />
+          <span className="text-xs font-medium">语音</span>
         </button>
 
         <textarea
