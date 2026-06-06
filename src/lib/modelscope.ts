@@ -1,7 +1,7 @@
 import { ENGLISH_TUTOR_SYSTEM_PROMPT } from "./prompts";
 
 const MODELSCOPE_BASE_URL = "https://api-inference.modelscope.cn/v1";
-const DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct";
+const DEFAULT_MODEL = "Qwen/Qwen3-32B";
 
 export interface ChatCompletionMessage {
   role: "user" | "assistant";
@@ -16,18 +16,24 @@ interface ModelScopeChatResponse {
   }>;
   error?: {
     message?: string;
+    code?: string;
   };
+  message?: string;
+}
+
+function getApiToken(): string {
+  const token = process.env.MODELSCOPE_API_TOKEN?.trim();
+  if (!token) {
+    throw new Error("MODELSCOPE_API_TOKEN is not configured");
+  }
+  return token;
 }
 
 export async function createChatCompletion(
   messages: ChatCompletionMessage[],
 ): Promise<string> {
-  const token = process.env.MODELSCOPE_API_TOKEN;
-  if (!token) {
-    throw new Error("MODELSCOPE_API_TOKEN is not configured");
-  }
-
-  const model = process.env.MODELSCOPE_MODEL ?? DEFAULT_MODEL;
+  const token = getApiToken();
+  const model = (process.env.MODELSCOPE_MODEL ?? DEFAULT_MODEL).trim();
 
   const response = await fetch(`${MODELSCOPE_BASE_URL}/chat/completions`, {
     method: "POST",
@@ -43,13 +49,22 @@ export async function createChatCompletion(
       ],
       temperature: 0.7,
       max_tokens: 512,
+      enable_thinking: false,
     }),
   });
 
-  const data = (await response.json()) as ModelScopeChatResponse;
+  const raw = await response.text();
+  let data: ModelScopeChatResponse = {};
+
+  try {
+    data = JSON.parse(raw) as ModelScopeChatResponse;
+  } catch {
+    throw new Error(`Invalid API response: ${raw.slice(0, 120)}`);
+  }
 
   if (!response.ok) {
-    const detail = data.error?.message ?? response.statusText;
+    const detail =
+      data.error?.message ?? data.message ?? raw.slice(0, 200) ?? response.statusText;
     throw new Error(detail || "ModelScope API request failed");
   }
 

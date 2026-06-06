@@ -34,9 +34,14 @@ export async function POST(request: NextRequest) {
     const message =
       error instanceof Error ? error.message : "Chat request failed";
     console.error("[api/chat]", message);
-    return NextResponse.json(
-      { error: "Unable to get a reply. Please try again." },
-      { status: 502 },
-    );
+
+    const hint =
+      message.includes("MODELSCOPE_API_TOKEN") ||
+      message.toLowerCase().includes("unauthorized") ||
+      message.toLowerCase().includes("authentication")
+        ? "Please check MODELSCOPE_API_TOKEN in .env.local"
+        : "Unable to get a reply. Please try again.";
+
+    return NextResponse.json({ error: hint }, { status: 502 });
   }
 }
