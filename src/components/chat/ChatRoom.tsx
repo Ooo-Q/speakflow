@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { ChatMessage } from "@/types/chat";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
+import { TypingIndicator } from "./TypingIndicator";
 
 const WELCOME_MESSAGE: ChatMessage = {
   id: "welcome",
@@ -16,20 +17,71 @@ const WELCOME_MESSAGE: ChatMessage = {
 
 export function ChatRoom() {
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isLoading, error]);
 
-  const handleSend = (text: string) => {
+  const handleSend = async (text: string) => {
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
       role: "user",
       content: text,
       createdAt: Date.now(),
     };
-    setMessages((prev) => [...prev, userMessage]);
+
+    const nextMessages = [...messages, userMessage];
+    setMessages(nextMessages);
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: nextMessages.map((message) => ({
+            role: message.role,
+            content: message.content,
+          })),
+        }),
+      });
+
+      const data = (await response.json()) as {
+        content?: string;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Request failed");
+      }
+
+      if (!data.content) {
+        throw new Error("Empty response");
+      }
+
+      const assistantMessage: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: "assistant",
+        content: data.content,
+        createdAt: Date.now(),
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+    } catch (requestError) {
+      const fallback =
+        "Unable to get a reply. Please check your connection and try again.";
+      if (requestError instanceof Error && requestError.message) {
+        setError(requestError.message);
+      } else {
+        setError(fallback);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -53,12 +105,18 @@ export function ChatRoom() {
           {messages.map((message) => (
             <MessageBubble key={message.id} message={message} />
           ))}
+          {isLoading && <TypingIndicator />}
+          {error && (
+            <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-center text-sm text-red-300">
+              {error}
+            </p>
+          )}
           <div ref={bottomRef} />
         </div>
       </div>
 
       <div className="mx-auto w-full max-w-2xl">
-        <ChatInput onSend={handleSend} />
+        <ChatInput onSend={handleSend} disabled={isLoading} />
       </div>
     </div>
   );
