@@ -40,9 +40,15 @@ function getSpeechRecognitionCtor():
 
 export function useSpeechRecognition() {
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const listeningRef = useRef(false);
   const [isSupported, setIsSupported] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const setListening = useCallback((value: boolean) => {
+    listeningRef.current = value;
+    setIsListening(value);
+  }, []);
 
   useEffect(() => {
     const Ctor = getSpeechRecognitionCtor();
@@ -54,16 +60,16 @@ export function useSpeechRecognition() {
     recognition.interimResults = true;
 
     recognition.onstart = () => {
-      setIsListening(true);
+      setListening(true);
       setError(null);
     };
 
     recognition.onend = () => {
-      setIsListening(false);
+      setListening(false);
     };
 
     recognition.onerror = (event) => {
-      setIsListening(false);
+      setListening(false);
       if (event.error === "not-allowed") {
         setError("请允许浏览器使用麦克风");
       } else if (event.error !== "aborted") {
@@ -75,10 +81,26 @@ export function useSpeechRecognition() {
     setIsSupported(true);
 
     return () => {
-      recognition.stop();
+      try {
+        recognition.stop();
+      } catch {
+        // ignore cleanup errors
+      }
       recognitionRef.current = null;
+      listeningRef.current = false;
     };
-  }, []);
+  }, [setListening]);
+
+  const stop = useCallback(() => {
+    const recognition = recognitionRef.current;
+    if (!recognition || !listeningRef.current) return;
+
+    try {
+      recognition.stop();
+    } catch {
+      setListening(false);
+    }
+  }, [setListening]);
 
   const start = useCallback(
     (
@@ -86,7 +108,7 @@ export function useSpeechRecognition() {
       onFinal?: (transcript: string) => void,
     ) => {
       const recognition = recognitionRef.current;
-      if (!recognition || isListening) return;
+      if (!recognition || listeningRef.current) return;
 
       recognition.onresult = (event) => {
         let interim = "";
@@ -114,28 +136,36 @@ export function useSpeechRecognition() {
       };
 
       setError(null);
-      recognition.start();
-    },
-    [isListening],
-  );
 
-  const stop = useCallback(() => {
-    recognitionRef.current?.stop();
-    setIsListening(false);
-  }, []);
+      try {
+        recognition.start();
+      } catch (startError) {
+        setListening(false);
+        if (
+          startError instanceof DOMException &&
+          startError.name === "InvalidStateError"
+        ) {
+          setError("语音识别正在启动，请稍候再试");
+          return;
+        }
+        setError("语音识别启动失败，请重试");
+      }
+    },
+    [setListening],
+  );
 
   const toggle = useCallback(
     (
       onResult: (transcript: string, isFinal: boolean) => void,
       onFinal?: (transcript: string) => void,
     ) => {
-      if (isListening) {
+      if (listeningRef.current) {
         stop();
         return;
       }
       start(onResult, onFinal);
     },
-    [isListening, start, stop],
+    [start, stop],
   );
 
   return {
