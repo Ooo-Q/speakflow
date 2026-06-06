@@ -55,11 +55,11 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     (isListening ? "正在聆听，请说英语…" : unsupportedReason);
 
   return (
-    <div className="relative z-20 shrink-0 border-t border-[#2a3441] bg-[#0b0f14]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+    <div className="relative z-20 shrink-0 border-t border-[var(--sf-border)] bg-[var(--sf-bg)]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
       {statusMessage && (
         <p
           className={`px-4 pt-2 text-center text-xs ${
-            speechError ? "text-[#f0a8a8]" : "text-[#8b98a8]"
+            speechError ? "text-[var(--sf-error)]" : "text-[var(--sf-muted)]"
           }`}
         >
           {statusMessage}
@@ -79,8 +79,8 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           aria-pressed={isListening}
           className={`flex min-h-12 shrink-0 touch-manipulation items-center justify-center gap-1 rounded-xl border px-3 transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${
             isListening
-              ? "border-[#d48484] bg-[rgba(212,132,132,0.12)] text-[#f0a8a8]"
-              : "border-[#2a3441] bg-[#141a22] text-[#8b98a8] hover:border-[#3a4654] hover:text-[#c5cdd6]"
+              ? "border-[var(--sf-listening-border)] bg-[var(--sf-listening-bg)] text-[var(--sf-listening-text)]"
+              : "border-[var(--sf-border)] bg-[var(--sf-surface)] text-[var(--sf-muted)] hover:border-[var(--sf-scroll-hover)] hover:text-[var(--sf-text)]"
           }`}
         >
           <MicIcon />
@@ -95,13 +95,13 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           rows={1}
           enterKeyHint="send"
           placeholder={isListening ? "正在识别…" : "用英语输入..."}
-          className="max-h-32 min-h-12 flex-1 resize-none rounded-xl border border-[#2a3441] bg-[#141a22] px-4 py-3 text-base text-[#e8edf2] placeholder:text-[#5c6878] focus:border-[#5b9fd4] focus:outline-none disabled:opacity-50"
+          className="max-h-32 min-h-12 flex-1 resize-none rounded-xl border border-[var(--sf-border)] bg-[var(--sf-surface)] px-4 py-3 text-base text-[var(--sf-text)] placeholder:text-[var(--sf-muted-2)] focus:border-[var(--sf-accent)] focus:outline-none disabled:opacity-50"
         />
 
         <button
           type="submit"
           disabled={disabled || !text.trim()}
-          className="flex min-h-12 min-w-16 shrink-0 touch-manipulation items-center justify-center rounded-xl bg-[#5b9fd4] px-5 text-sm font-medium text-[#0b0f14] transition hover:bg-[#6eb0e0] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex min-h-12 min-w-16 shrink-0 touch-manipulation items-center justify-center rounded-xl bg-[var(--sf-accent)] px-5 text-sm font-medium text-[var(--sf-accent-foreground)] transition hover:bg-[var(--sf-accent-hover)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
         >
           发送
         </button>

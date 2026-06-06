@@ -5,7 +5,7 @@ export default function ChatPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex h-dvh items-center justify-center bg-[#0b0f14] text-[#8b98a8]">
+        <div className="flex h-dvh items-center justify-center bg-[var(--sf-bg)] text-[var(--sf-muted)]">
           加载中...
         </div>
       }

@@ -14,6 +14,7 @@ import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 import { TypingIndicator } from "./TypingIndicator";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ScenarioPicker } from "./ScenarioPicker";
 
 function createWelcomeMessage(scenarioId: ScenarioId): ChatMessage {
@@ -148,30 +149,31 @@ export function ChatRoom() {
   };
 
   return (
-    <div className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-[#0b0f14] text-[#e8edf2]">
-      <header className="z-10 shrink-0 border-b border-[#2a3441] bg-[#0b0f14]">
-        <div className="flex items-center gap-3 px-4 py-3">
+    <div className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-[var(--sf-bg)] text-[var(--sf-text)]">
+      <header className="z-10 shrink-0 border-b border-[var(--sf-border)] bg-[var(--sf-bg)]">
+        <div className="flex items-center gap-2 px-4 py-3 sm:gap-3">
           <Link
             href="/"
-            className="flex h-10 w-10 touch-manipulation items-center justify-center rounded-lg border border-[#2a3441] bg-[#141a22] text-[#8b98a8] transition active:scale-[0.98] hover:border-[#3a4654] hover:text-[#e8edf2]"
+            className="flex h-10 w-10 touch-manipulation items-center justify-center rounded-lg border border-[var(--sf-border)] bg-[var(--sf-surface)] text-[var(--sf-muted)] transition active:scale-[0.98] hover:border-[var(--sf-scroll-hover)] hover:text-[var(--sf-text)]"
             aria-label="返回首页"
           >
             <BackIcon />
           </Link>
           <div className="min-w-0 flex-1">
             <h1 className="text-base font-semibold tracking-tight">SpeakFlow</h1>
-            <p className="text-xs text-[#8b98a8]">
+            <p className="text-xs text-[var(--sf-muted)]">
               {getScenario(scenario).label}
             </p>
           </div>
+          <ThemeToggle />
           {isSupported && (
             <button
               type="button"
               onClick={toggleAutoSpeak}
               className={`touch-manipulation shrink-0 rounded-lg border px-3 py-1.5 text-xs font-medium transition active:scale-[0.98] ${
                 autoSpeak
-                  ? "border-[#5b9fd4] bg-[rgba(91,159,212,0.14)] text-[#8ec5ef]"
-                  : "border-[#2a3441] bg-[#141a22] text-[#8b98a8]"
+                  ? "border-[var(--sf-accent)] bg-[var(--sf-accent-soft)] text-[var(--sf-accent)]"
+                  : "border-[var(--sf-border)] bg-[var(--sf-surface)] text-[var(--sf-muted)]"
               }`}
             >
               {autoSpeak ? "朗读开" : "朗读关"}
@@ -201,7 +203,7 @@ export function ChatRoom() {
           ))}
           {isLoading && <TypingIndicator />}
           {error && (
-            <p className="rounded-xl border border-[rgba(212,132,132,0.35)] bg-[rgba(212,132,132,0.08)] px-4 py-2 text-center text-sm text-[#f0a8a8]">
+            <p className="rounded-xl border border-[var(--sf-error-border)] bg-[var(--sf-error-bg)] px-4 py-2 text-center text-sm text-[var(--sf-error)]">
               {error}
             </p>
           )}
