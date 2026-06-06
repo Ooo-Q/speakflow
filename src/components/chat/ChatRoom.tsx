@@ -101,8 +101,7 @@ export function ChatRoom() {
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (requestError) {
-      const fallback =
-        "Unable to get a reply. Please check your connection and try again.";
+      const fallback = "暂时无法获取回复，请检查网络后重试。";
       if (requestError instanceof Error && requestError.message) {
         setError(requestError.message);
       } else {
@@ -120,7 +119,7 @@ export function ChatRoom() {
           <Link
             href="/"
             className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-600 text-slate-300 transition hover:border-slate-500 hover:text-white"
-            aria-label="Back to home"
+            aria-label="返回首页"
           >
             <BackIcon />
           </Link>

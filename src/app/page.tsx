@@ -7,14 +7,13 @@ export default function Home() {
       <main className="flex max-w-lg flex-col items-center gap-8 text-center">
         <div className="flex flex-col items-center gap-4">
           <p className="rounded-full bg-emerald-500/20 px-4 py-1 text-sm text-emerald-300">
-            AI English Speaking Partner
+            AI 英语口语陪练
           </p>
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
             SpeakFlow
           </h1>
           <p className="text-lg leading-relaxed text-slate-300">
-            Practice spoken English with AI. Type or speak — get natural replies
-            and helpful corrections.
+            与 AI 一起练习英语口语。打字或说话，获得自然回复与表达建议。
           </p>
         </div>
 
@@ -23,7 +22,7 @@ export default function Home() {
             href="/chat"
             className="rounded-full bg-emerald-600 px-8 py-3.5 text-center text-base font-medium text-white shadow-lg shadow-emerald-900/30 transition hover:bg-emerald-500"
           >
-            Start Practice
+            开始练习
           </Link>
 
           <div className="grid gap-2 pt-2">

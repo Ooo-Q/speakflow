@@ -6,7 +6,7 @@ export default function ChatPage() {
     <Suspense
       fallback={
         <div className="flex h-dvh items-center justify-center bg-slate-950 text-slate-400">
-          Loading...
+          加载中...
         </div>
       }
     >

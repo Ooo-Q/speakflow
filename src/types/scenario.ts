@@ -10,22 +10,22 @@ export interface Scenario {
 export const SCENARIOS: Scenario[] = [
   {
     id: "daily",
-    label: "Daily Chat",
-    description: "Casual everyday conversation",
+    label: "日常聊天",
+    description: "轻松聊生活话题",
     welcome:
       "Hi! Let's practice everyday English — hobbies, weather, food, or anything on your mind. What would you like to talk about?",
   },
   {
     id: "interview",
-    label: "Job Interview",
-    description: "Practice interview questions",
+    label: "求职面试",
+    description: "模拟英文面试问答",
     welcome:
       "Hi! I'll act as an interviewer today. Tell me the role you're preparing for, or we can start with a classic: \"Tell me about yourself.\"",
   },
   {
     id: "travel",
-    label: "Travel",
-    description: "Airport, hotel, and directions",
+    label: "旅行出行",
+    description: "机场、酒店与问路",
     welcome:
       "Hi! Let's practice travel English — checking in at a hotel, asking for directions, or ordering at a café. Where are you traveling to?",
   },
