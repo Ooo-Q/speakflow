@@ -2,9 +2,17 @@ import type { ChatMessage } from "@/types/chat";
 
 interface MessageBubbleProps {
   message: ChatMessage;
+  onSpeak?: (text: string) => void;
+  isSpeaking?: boolean;
+  canSpeak?: boolean;
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  onSpeak,
+  isSpeaking,
+  canSpeak,
+}: MessageBubbleProps) {
   const isUser = message.role === "user";
 
   return (
@@ -17,7 +25,20 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         }`}
       >
         {!isUser && (
-          <p className="mb-1 text-xs font-medium text-emerald-400">SpeakFlow</p>
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <p className="text-xs font-medium text-emerald-400">SpeakFlow</p>
+            {canSpeak && onSpeak && (
+              <button
+                type="button"
+                onClick={() => onSpeak(message.content)}
+                disabled={isSpeaking}
+                aria-label="朗读这条消息"
+                className="touch-manipulation rounded-full px-2 py-0.5 text-xs text-slate-400 transition hover:text-emerald-300 disabled:opacity-50"
+              >
+                {isSpeaking ? "朗读中" : "朗读"}
+              </button>
+            )}
+          </div>
         )}
         <p className="whitespace-pre-wrap break-words">{message.content}</p>
       </div>

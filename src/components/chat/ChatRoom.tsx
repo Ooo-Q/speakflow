@@ -10,6 +10,7 @@ import {
   isScenarioId,
   type ScenarioId,
 } from "@/types/scenario";
+import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 import { TypingIndicator } from "./TypingIndicator";
@@ -40,14 +41,36 @@ export function ChatRoom() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [autoSpeak, setAutoSpeak] = useState(true);
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(
+    null,
+  );
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { isSupported, isSpeaking, speak, stop } = useSpeechSynthesis();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading, error]);
 
+  useEffect(() => {
+    return () => stop();
+  }, [stop]);
+
+  const handleSpeak = (messageId: string, text: string) => {
+    if (!isSupported) return;
+    setSpeakingMessageId(messageId);
+    speak(text);
+  };
+
+  useEffect(() => {
+    if (!isSpeaking) {
+      setSpeakingMessageId(null);
+    }
+  }, [isSpeaking]);
+
   const handleScenarioChange = (nextScenario: ScenarioId) => {
     if (nextScenario === scenario || isLoading) return;
+    stop();
     setScenario(nextScenario);
     setMessages([createWelcomeMessage(nextScenario)]);
     setError(null);
@@ -65,6 +88,7 @@ export function ChatRoom() {
     setMessages(nextMessages);
     setIsLoading(true);
     setError(null);
+    stop();
 
     try {
       const response = await fetch("/api/chat", {
@@ -100,6 +124,10 @@ export function ChatRoom() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+
+      if (autoSpeak && isSupported) {
+        handleSpeak(assistantMessage.id, assistantMessage.content);
+      }
     } catch (requestError) {
       const fallback = "暂时无法获取回复，请检查网络后重试。";
       if (requestError instanceof Error && requestError.message) {
@@ -110,6 +138,13 @@ export function ChatRoom() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const toggleAutoSpeak = () => {
+    if (autoSpeak) {
+      stop();
+    }
+    setAutoSpeak((prev) => !prev);
   };
 
   return (
@@ -123,12 +158,25 @@ export function ChatRoom() {
           >
             <BackIcon />
           </Link>
-          <div>
+          <div className="min-w-0 flex-1">
             <h1 className="text-base font-semibold">SpeakFlow</h1>
             <p className="text-xs text-slate-400">
               {getScenario(scenario).label}
             </p>
           </div>
+          {isSupported && (
+            <button
+              type="button"
+              onClick={toggleAutoSpeak}
+              className={`touch-manipulation shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition active:scale-95 ${
+                autoSpeak
+                  ? "border-emerald-500 bg-emerald-500/20 text-emerald-300"
+                  : "border-slate-600 text-slate-400"
+              }`}
+            >
+              {autoSpeak ? "朗读开" : "朗读关"}
+            </button>
+          )}
         </div>
         <ScenarioPicker
           value={scenario}
@@ -141,7 +189,15 @@ export function ChatRoom() {
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
         <div className="mx-auto flex max-w-2xl flex-col gap-4">
           {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
+            <MessageBubble
+              key={message.id}
+              message={message}
+              canSpeak={isSupported && message.role === "assistant"}
+              isSpeaking={
+                isSpeaking && speakingMessageId === message.id
+              }
+              onSpeak={(text) => handleSpeak(message.id, text)}
+            />
           ))}
           {isLoading && <TypingIndicator />}
           {error && (
