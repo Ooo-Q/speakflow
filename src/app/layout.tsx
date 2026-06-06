@@ -24,7 +24,7 @@ export const viewport = {
   viewportFit: "cover",
 };
 
-const themeScript = `(function(){try{var t=localStorage.getItem("speakflow-theme")||"dark";document.documentElement.setAttribute("data-theme",t)}catch(e){document.documentElement.setAttribute("data-theme","dark")}})()`;
+const themeScript = `(function(){try{var t=localStorage.getItem("speakflow-theme")||"dark";document.documentElement.setAttribute("data-theme",t);document.documentElement.style.colorScheme=t}catch(e){document.documentElement.setAttribute("data-theme","dark");document.documentElement.style.colorScheme="dark"}})()`;
 
 export default function RootLayout({
   children,
@@ -34,6 +34,7 @@ export default function RootLayout({
   return (
     <html
       lang="zh-CN"
+      data-theme="dark"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
