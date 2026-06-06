@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SCENARIOS } from "@/types/scenario";
 
 export default function Home() {
   return (
@@ -17,16 +18,28 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="flex w-full max-w-xs flex-col gap-3">
+        <div className="flex w-full max-w-sm flex-col gap-3">
           <Link
             href="/chat"
             className="rounded-full bg-emerald-600 px-8 py-3.5 text-center text-base font-medium text-white shadow-lg shadow-emerald-900/30 transition hover:bg-emerald-500"
           >
             Start Practice
           </Link>
-          <p className="text-xs text-slate-500">
-            Free conversation · Grammar tips · Multiple scenarios
-          </p>
+
+          <div className="grid gap-2 pt-2">
+            {SCENARIOS.map((scenario) => (
+              <Link
+                key={scenario.id}
+                href={`/chat?scenario=${scenario.id}`}
+                className="rounded-2xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-left transition hover:border-emerald-500/50 hover:bg-slate-800"
+              >
+                <p className="text-sm font-medium text-slate-100">
+                  {scenario.label}
+                </p>
+                <p className="text-xs text-slate-400">{scenario.description}</p>
+              </Link>
+            ))}
+          </div>
         </div>
       </main>
     </div>

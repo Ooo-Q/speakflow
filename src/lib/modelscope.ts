@@ -1,4 +1,5 @@
-import { ENGLISH_TUTOR_SYSTEM_PROMPT } from "./prompts";
+import { getSystemPrompt } from "./prompts";
+import type { ScenarioId } from "@/types/scenario";
 
 const MODELSCOPE_BASE_URL = "https://api-inference.modelscope.cn/v1";
 const DEFAULT_MODEL = "Qwen/Qwen3-32B";
@@ -31,6 +32,7 @@ function getApiToken(): string {
 
 export async function createChatCompletion(
   messages: ChatCompletionMessage[],
+  scenario: ScenarioId = "daily",
 ): Promise<string> {
   const token = getApiToken();
   const model = (process.env.MODELSCOPE_MODEL ?? DEFAULT_MODEL).trim();
@@ -44,7 +46,7 @@ export async function createChatCompletion(
     body: JSON.stringify({
       model,
       messages: [
-        { role: "system", content: ENGLISH_TUTOR_SYSTEM_PROMPT },
+        { role: "system", content: getSystemPrompt(scenario) },
         ...messages,
       ],
       temperature: 0.7,

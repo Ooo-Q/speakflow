@@ -2,21 +2,42 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import type { ChatMessage } from "@/types/chat";
+import {
+  SCENARIOS,
+  getScenario,
+  isScenarioId,
+  type ScenarioId,
+} from "@/types/scenario";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 import { TypingIndicator } from "./TypingIndicator";
+import { ScenarioPicker } from "./ScenarioPicker";
 
-const WELCOME_MESSAGE: ChatMessage = {
-  id: "welcome",
-  role: "assistant",
-  content:
-    "Hi! I'm your English speaking partner. Tell me what you'd like to practice — daily chat, job interviews, or travel conversations.",
-  createdAt: Date.now(),
-};
+function createWelcomeMessage(scenarioId: ScenarioId): ChatMessage {
+  const scenario = getScenario(scenarioId);
+  return {
+    id: `welcome-${scenarioId}`,
+    role: "assistant",
+    content: scenario.welcome,
+    createdAt: Date.now(),
+  };
+}
+
+function resolveInitialScenario(searchParams: URLSearchParams | null): ScenarioId {
+  const fromUrl = searchParams?.get("scenario");
+  return isScenarioId(fromUrl) ? fromUrl : "daily";
+}
 
 export function ChatRoom() {
-  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const searchParams = useSearchParams();
+  const [scenario, setScenario] = useState<ScenarioId>(() =>
+    resolveInitialScenario(searchParams),
+  );
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
+    createWelcomeMessage(resolveInitialScenario(searchParams)),
+  ]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -24,6 +45,13 @@ export function ChatRoom() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading, error]);
+
+  const handleScenarioChange = (nextScenario: ScenarioId) => {
+    if (nextScenario === scenario || isLoading) return;
+    setScenario(nextScenario);
+    setMessages([createWelcomeMessage(nextScenario)]);
+    setError(null);
+  };
 
   const handleSend = async (text: string) => {
     const userMessage: ChatMessage = {
@@ -43,6 +71,7 @@ export function ChatRoom() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          scenario,
           messages: nextMessages.map((message) => ({
             role: message.role,
             content: message.content,
@@ -86,18 +115,28 @@ export function ChatRoom() {
 
   return (
     <div className="flex h-dvh flex-col bg-gradient-to-b from-slate-950 to-slate-900 text-white">
-      <header className="flex items-center gap-3 border-b border-slate-700/80 px-4 py-3">
-        <Link
-          href="/"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-600 text-slate-300 transition hover:border-slate-500 hover:text-white"
-          aria-label="Back to home"
-        >
-          <BackIcon />
-        </Link>
-        <div>
-          <h1 className="text-base font-semibold">SpeakFlow</h1>
-          <p className="text-xs text-slate-400">English speaking practice</p>
+      <header className="border-b border-slate-700/80">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <Link
+            href="/"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-600 text-slate-300 transition hover:border-slate-500 hover:text-white"
+            aria-label="Back to home"
+          >
+            <BackIcon />
+          </Link>
+          <div>
+            <h1 className="text-base font-semibold">SpeakFlow</h1>
+            <p className="text-xs text-slate-400">
+              {getScenario(scenario).label}
+            </p>
+          </div>
         </div>
+        <ScenarioPicker
+          value={scenario}
+          scenarios={SCENARIOS}
+          onChange={handleScenarioChange}
+          disabled={isLoading}
+        />
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
